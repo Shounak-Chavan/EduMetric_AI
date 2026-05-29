@@ -1,0 +1,68 @@
+# Python bytecode and cache
+__pycache__/
+*.py[cod]
+*.pyd
+*.so
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.pyre/
+.hypothesis/
+.coverage
+.coverage.*
+htmlcov/
+
+# Packaging and build artifacts
+build/
+dist/
+site/
+pip-wheel-metadata/
+wheels/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Environment and secrets
+.env
+.env.*
+backend/.env
+backend/.env.*
+*.env
+*.env.*
+
+# Logs and temporary files
+*.log
+logs/
+log/
+tmp/
+temp/
+uploads/
+celerybeat-schedule
+celerybeat-schedule.*
+celerybeat.pid
+
+# Local databases and dumps
+*.sqlite3
+*.db
+*.sqlite
+*.dump
+*.sql
+
+# Editor and IDE settings
+.vscode/
+.idea/
+.fleet/
+*.code-workspace
+
+# OS metadata
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# FastAPI / Python tooling
+.python-version
+.ipynb_checkpoints/

@@ -1,0 +1,42 @@
+from contextlib import asynccontextmanager
+
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+from app.core.config import settings
+from app.db.session import init_db
+from app.routers.auth import router as auth_router
+from app.routers.assignment import router as assignment_router
+from app.routers.submission import router as submission_router
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await init_db()
+    yield
+
+
+app = FastAPI(
+    title=settings.APP_NAME,
+    lifespan=lifespan,
+)
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Include routers
+app.include_router(auth_router)
+app.include_router(assignment_router)
+app.include_router(submission_router)
+
+@app.get("/")
+async def root():
+    return {
+        "message": "EduMetric API Running"
+    }
