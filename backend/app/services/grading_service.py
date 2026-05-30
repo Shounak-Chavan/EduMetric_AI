@@ -12,9 +12,6 @@ from app.models.enums import (
 from app.models.grading_result import GradingResult
 from app.models.submission import Submission
 from app.models.user import User
-from app.tasks.grading_tasks import (
-    grade_submission_task,
-)
 from app.utils.grader import grade_text
 
 
@@ -131,6 +128,7 @@ class GradingService:
         submission_id: int,
         current_user: User,
     ):
+        from app.tasks.grading_tasks import grade_submission_task
 
         result = await db.execute(
             select(Submission).where(
@@ -191,6 +189,7 @@ class GradingService:
         assignment_id: int,
         current_user: User,
     ):
+        from app.tasks.grading_tasks import grade_submission_task
 
         result = await db.execute(
             select(Assignment).where(
