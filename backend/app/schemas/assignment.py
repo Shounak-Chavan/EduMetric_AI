@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, model_validator
 
 from app.models.enums import GradingMode
 
@@ -15,7 +15,18 @@ class AssignmentCreate(BaseModel):
 
     grading_mode: GradingMode
 
+    grading_min_marks: int = 0
+    grading_max_marks: int = 10
+
     due_date: datetime
+
+    @model_validator(mode="after")
+    def validate_marks_range(self):
+        if self.grading_min_marks >= self.grading_max_marks:
+            raise ValueError(
+                "grading_min_marks must be less than grading_max_marks"
+            )
+        return self
 
 
 class AssignmentUpdate(BaseModel):
@@ -27,6 +38,9 @@ class AssignmentUpdate(BaseModel):
     department: str | None = None
 
     grading_mode: GradingMode | None = None
+
+    grading_min_marks: int | None = None
+    grading_max_marks: int | None = None
 
     due_date: datetime | None = None
 
@@ -44,6 +58,9 @@ class AssignmentResponse(BaseModel):
     department: str
 
     grading_mode: GradingMode
+
+    grading_min_marks: int
+    grading_max_marks: int
 
     due_date: datetime
 

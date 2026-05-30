@@ -8,7 +8,8 @@ from app.db.session import init_db
 from app.routers.auth import router as auth_router
 from app.routers.assignment import router as assignment_router
 from app.routers.submission import router as submission_router
-
+from app.routers.grading_result import router as grading_result_router
+from app.routers.grading import router as grading_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -34,7 +35,8 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(assignment_router)
 app.include_router(submission_router)
-
+app.include_router(grading_result_router)
+app.include_router(grading_router)
 @app.get("/")
 async def root():
     return {

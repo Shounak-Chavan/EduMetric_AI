@@ -80,3 +80,8 @@ class Submission(Base):
     student = relationship(
         "User",
     )
+    grading_result = relationship(
+        "GradingResult",
+        back_populates="submission",
+        uselist=False,
+)

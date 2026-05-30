@@ -28,6 +28,8 @@ class AssignmentService:
             division=data.division,
             department=data.department,
             grading_mode=data.grading_mode,
+            grading_min_marks=data.grading_min_marks,
+            grading_max_marks=data.grading_max_marks,
             due_date=data.due_date,
         )
 

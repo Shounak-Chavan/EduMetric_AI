@@ -18,6 +18,9 @@ class Settings(BaseSettings):
 
     REDIS_URL: str
 
+    CELERY_BROKER_URL: str
+    CELERY_RESULT_BACKEND: str
+
     FRONTEND_URL: str
 
     SUPER_ADMIN_NAME: str

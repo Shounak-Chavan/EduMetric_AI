@@ -1,7 +1,7 @@
 from datetime import UTC, datetime
 from uuid import UUID
 
-from sqlalchemy import DateTime, Enum, ForeignKey, String, Text, Boolean
+from sqlalchemy import DateTime, Enum, ForeignKey, String, Text, Boolean, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
@@ -56,6 +56,18 @@ class Assignment(Base):
         Enum(GradingMode),
         nullable=False,
         default=GradingMode.MEDIUM,
+    )
+
+    grading_min_marks: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+        default=0,
+    )
+
+    grading_max_marks: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+        default=10,
     )
 
     due_date: Mapped[datetime] = mapped_column(
