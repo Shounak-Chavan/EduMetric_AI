@@ -6,7 +6,9 @@ from fastapi import (
     UploadFile,
 )
 from sqlalchemy.ext.asyncio import AsyncSession
-
+from app.services.assignment_service import (
+    AssignmentService,
+)
 from app.db.session import get_db
 from app.dependencies.roles import require_roles
 from app.models.enums import UserRole
@@ -35,14 +37,18 @@ async def upload_submission(
         require_roles([UserRole.STUDENT])
     ),
 ):
-    extracted_text = await TextExtractor.extract_text(file)
+    extracted_text = (
+        await TextExtractor.extract_text(file)
+    )
 
-    return await SubmissionService.upload_submission(
-    db,
-    assignment_id,
-    current_user.id,
-    extracted_text,
-)
+    return await (
+        SubmissionService.upload_submission(
+            db,
+            assignment_id,
+            current_user.id,
+            extracted_text,
+        )
+    )
 
 
 @router.get(
@@ -94,3 +100,51 @@ async def get_submission(
         )
 
     return submission
+
+@router.get(
+    "/assignment/{assignment_id}",
+    response_model=list[SubmissionResponse],
+)
+async def get_assignment_submissions(
+    assignment_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(
+        require_roles(
+            [
+                UserRole.TEACHER,
+                UserRole.SUPER_ADMIN,
+            ]
+        )
+    ),
+):
+    assignment = (
+        await AssignmentService.get_assignment_by_id(
+            db,
+            assignment_id,
+        )
+    )
+
+    if not assignment:
+        raise HTTPException(
+            status_code=404,
+            detail="Assignment not found",
+        )
+
+    if (
+        current_user.role
+        != UserRole.SUPER_ADMIN
+        and assignment.teacher_id
+        != current_user.id
+    ):
+        raise HTTPException(
+            status_code=403,
+            detail="Access denied",
+        )
+
+    return await (
+        SubmissionService
+        .get_assignment_submissions(
+            db,
+            assignment_id,
+        )
+    )

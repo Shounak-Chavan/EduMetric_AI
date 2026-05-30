@@ -14,6 +14,7 @@ from app.services.assignment_service import (
     AssignmentService,
 )
 from app.utils.text_extractor import TextExtractor
+from app.dependencies.auth import get_current_user
 
 router = APIRouter(
     prefix="/assignments",
@@ -82,7 +83,6 @@ async def get_available_assignments(
         department=current_user.department,
     )
 
-
 @router.get(
     "/{assignment_id}",
     response_model=AssignmentResponse,
@@ -90,6 +90,9 @@ async def get_available_assignments(
 async def get_assignment(
     assignment_id: int,
     db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(
+        get_current_user
+    ),
 ):
     assignment = (
         await AssignmentService.get_assignment_by_id(
@@ -103,6 +106,30 @@ async def get_assignment(
             status_code=404,
             detail="Assignment not found",
         )
+
+    if current_user.role == UserRole.TEACHER:
+
+        if assignment.teacher_id != current_user.id:
+            raise HTTPException(
+                status_code=403,
+                detail="Access denied",
+            )
+
+    elif current_user.role == UserRole.STUDENT:
+
+        if (
+            not assignment.is_published
+            or assignment.batch
+            != current_user.batch
+            or assignment.division
+            != current_user.division
+            or assignment.department
+            != current_user.department
+        ):
+            raise HTTPException(
+                status_code=403,
+                detail="Access denied",
+            )
 
     return assignment
 

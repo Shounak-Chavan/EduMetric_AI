@@ -57,11 +57,16 @@ class SubmissionService:
 
         if submission:
 
-            submission.submission_text = extracted_text
+            if submission.status != SubmissionStatus.PENDING:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=(
+                        "Submission can no longer "
+                        "be modified."
+                    ),
+                )
 
-            submission.status = (
-                SubmissionStatus.PENDING
-            )
+            submission.submission_text = extracted_text
 
             submission.submitted_at = (
                 datetime.now(UTC)
@@ -112,3 +117,20 @@ class SubmissionService:
         )
 
         return list(result.scalars().all())
+    
+    @staticmethod
+    async def get_assignment_submissions(
+        db: AsyncSession,
+        assignment_id: int,
+    ) -> list[Submission]:
+
+        result = await db.execute(
+            select(Submission).where(
+                Submission.assignment_id
+                == assignment_id
+            )
+        )
+
+        return list(
+            result.scalars().all()
+        )

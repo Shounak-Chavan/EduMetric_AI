@@ -5,9 +5,13 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.assignment import Assignment
-from app.models.enums import SubmissionStatus
+from app.models.enums import (
+    SubmissionStatus,
+    UserRole,
+)
 from app.models.grading_result import GradingResult
 from app.models.submission import Submission
+from app.models.user import User
 from app.tasks.grading_tasks import (
     grade_submission_task,
 )
@@ -125,6 +129,7 @@ class GradingService:
     async def queue_submission_grading(
         db: AsyncSession,
         submission_id: int,
+        current_user: User,
     ):
 
         result = await db.execute(
@@ -142,12 +147,34 @@ class GradingService:
                 status_code=404,
                 detail="Submission not found.",
             )
-        
+
+        result = await db.execute(
+            select(Assignment).where(
+                Assignment.id
+                == submission.assignment_id
+            )
+        )
+
+        assignment = (
+            result.scalar_one_or_none()
+        )
+
+        if (
+            current_user.role
+            != UserRole.SUPER_ADMIN
+            and assignment.teacher_id
+            != current_user.id
+        ):
+            raise HTTPException(
+                status_code=403,
+                detail="Access denied.",
+            )
+
         if submission.status != SubmissionStatus.PENDING:
             raise HTTPException(
                 status_code=400,
                 detail="Submission already graded.",
-        )
+            )
 
         grade_submission_task.delay(
             submission.id
@@ -162,7 +189,35 @@ class GradingService:
     async def queue_assignment_grading(
         db: AsyncSession,
         assignment_id: int,
+        current_user: User,
     ):
+
+        result = await db.execute(
+            select(Assignment).where(
+                Assignment.id == assignment_id
+            )
+        )
+
+        assignment = (
+            result.scalar_one_or_none()
+        )
+
+        if not assignment:
+            raise HTTPException(
+                status_code=404,
+                detail="Assignment not found.",
+            )
+
+        if (
+            current_user.role
+            != UserRole.SUPER_ADMIN
+            and assignment.teacher_id
+            != current_user.id
+        ):
+            raise HTTPException(
+                status_code=403,
+                detail="Access denied.",
+            )
 
         result = await db.execute(
             select(Submission).where(
