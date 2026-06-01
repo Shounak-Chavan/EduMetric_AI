@@ -1,4 +1,5 @@
 from datetime import datetime
+from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict
 
@@ -8,7 +9,7 @@ class SubmissionResponse(BaseModel):
     id: int
 
     assignment_id: int
-    student_id: str
+    student_id: UUID
 
     status: SubmissionStatus
 

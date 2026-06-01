@@ -30,7 +30,7 @@ async def create_assignment(
     data: AssignmentCreate,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(
-        require_roles([UserRole.TEACHER])
+        require_roles([UserRole.TEACHER, UserRole.SUPER_ADMIN])
     ),
 ):
     return await AssignmentService.create_assignment(
@@ -47,7 +47,7 @@ async def create_assignment(
 async def get_my_assignments(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(
-        require_roles([UserRole.TEACHER])
+        require_roles([UserRole.TEACHER, UserRole.SUPER_ADMIN])
     ),
 ):
     return await AssignmentService.get_teacher_assignments(
@@ -63,7 +63,7 @@ async def get_my_assignments(
 async def get_available_assignments(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(
-        require_roles([UserRole.STUDENT])
+        require_roles([UserRole.STUDENT, UserRole.SUPER_ADMIN])
     ),
 ):
     """
@@ -143,7 +143,7 @@ async def update_assignment(
     data: AssignmentUpdate,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(
-        require_roles([UserRole.TEACHER])
+        require_roles([UserRole.TEACHER, UserRole.SUPER_ADMIN])
     ),
 ):
     assignment = (
@@ -180,7 +180,7 @@ async def publish_assignment(
     assignment_id: int,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(
-        require_roles([UserRole.TEACHER])
+        require_roles([UserRole.TEACHER, UserRole.SUPER_ADMIN])
     ),
 ):
     assignment = (
@@ -215,7 +215,7 @@ async def delete_assignment(
     assignment_id: int,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(
-        require_roles([UserRole.TEACHER])
+        require_roles([UserRole.TEACHER, UserRole.SUPER_ADMIN])
     ),
 ):
     assignment = (
@@ -256,7 +256,7 @@ async def upload_reference_solution(
     file: UploadFile = File(...),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(
-        require_roles([UserRole.TEACHER])
+        require_roles([UserRole.TEACHER, UserRole.SUPER_ADMIN])
     ),
 ):
     assignment = (

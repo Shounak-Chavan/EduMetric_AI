@@ -1,4 +1,5 @@
 from datetime import datetime
+from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, model_validator
 
@@ -51,7 +52,7 @@ class AssignmentResponse(BaseModel):
     title: str
     description: str | None
 
-    teacher_id: str
+    teacher_id: UUID
 
     batch: str
     division: str

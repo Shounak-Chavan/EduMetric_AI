@@ -80,6 +80,16 @@ async def sync_authenticated_user(
         if user.role != expected_role:
             user.role = expected_role
 
+    if user.role in (UserRole.TEACHER, UserRole.SUPER_ADMIN):
+        teacher_result = await db.execute(
+            select(Teacher).where(
+                Teacher.user_id == user.id,
+            )
+        )
+        teacher = teacher_result.scalar_one_or_none()
+        if teacher is None:
+            db.add(Teacher(user_id=user.id))
+
     await db.commit()
     await db.refresh(user)
 

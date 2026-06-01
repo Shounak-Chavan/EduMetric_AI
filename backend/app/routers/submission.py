@@ -34,7 +34,7 @@ async def upload_submission(
     file: UploadFile = File(...),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(
-        require_roles([UserRole.STUDENT])
+        require_roles([UserRole.STUDENT, UserRole.SUPER_ADMIN])
     ),
 ):
     extracted_text = (
@@ -58,7 +58,7 @@ async def upload_submission(
 async def get_my_submissions(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(
-        require_roles([UserRole.STUDENT])
+        require_roles([UserRole.STUDENT, UserRole.SUPER_ADMIN])
     ),
 ):
     return await (
@@ -77,7 +77,7 @@ async def get_submission(
     submission_id: int,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(
-        require_roles([UserRole.STUDENT])
+        require_roles([UserRole.STUDENT, UserRole.SUPER_ADMIN])
     ),
 ):
     submission = (

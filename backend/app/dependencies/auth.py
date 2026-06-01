@@ -1,16 +1,24 @@
-from fastapi import Depends, Header, HTTPException, status
+from fastapi import Depends, HTTPException, Security, status
+from fastapi.security import APIKeyCookie
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from jose import JWTError
 
+from app.core.config import settings
 from app.core.security import verify_supabase_jwt
 from app.db.session import get_db
 from app.models.user import User
 from app.services.auth_service import sync_authenticated_user
 
 
+token_cookie = APIKeyCookie(
+    name=settings.AUTH_COOKIE_NAME,
+    auto_error=False,
+)
+
+
 async def get_current_user(
-    authorization: str = Header(...),
+    token: str | None = Security(token_cookie),
     db: AsyncSession = Depends(get_db),
 ) -> User:
     """
@@ -19,18 +27,10 @@ async def get_current_user(
     and synchronizes teacher role based on teachers table.
     """
 
-    try:
-        scheme, token = authorization.split()
-    except ValueError:
+    if not token:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid authorization header",
-        )
-
-    if scheme.lower() != "bearer":
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid authentication scheme",
+            detail="Not authenticated",
         )
 
     try:

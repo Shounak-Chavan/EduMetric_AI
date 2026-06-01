@@ -1,4 +1,5 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import field_validator
 
 
 class Settings(BaseSettings):
@@ -26,6 +27,21 @@ class Settings(BaseSettings):
     SUPER_ADMIN_NAME: str
     SUPER_ADMIN_EMAIL: str
     SUPER_ADMIN_PASSWORD: str
+
+    AUTH_COOKIE_NAME: str = "edumetric_jwt"
+    AUTH_COOKIE_SECURE: bool = False
+    AUTH_COOKIE_SAMESITE: str = "lax"
+    AUTH_COOKIE_MAX_AGE_SECONDS: int = 3600
+
+    @field_validator("AUTH_COOKIE_SAMESITE")
+    @classmethod
+    def validate_cookie_samesite(cls, value: str) -> str:
+        normalized = value.lower().strip()
+        if normalized not in {"lax", "strict", "none"}:
+            raise ValueError(
+                "AUTH_COOKIE_SAMESITE must be one of: lax, strict, none"
+            )
+        return normalized
 
     model_config = SettingsConfigDict(
         env_file=".env",
